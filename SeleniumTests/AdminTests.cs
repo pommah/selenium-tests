@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using System.Threading;
 using NUnit.Framework;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
@@ -70,6 +69,40 @@ namespace SeleniumTests
             
             var remainingCells = _webDriver.FindElements(By.TagName("td"));
             Assert.IsEmpty(remainingCells.Where(td => td.Text == "Временный тестовый унивеситет"));
+        }
+
+        [Test]
+        public void AddAndDeleteUser()
+        {
+            _webDriver.Manage().Window.Size = new System.Drawing.Size(1600, 960);
+            
+            Utils.Autorise(_webDriver, "admin", "password");
+            
+            _webDriver.Navigate().GoToUrl(Utils.SiteUrl + "/user/add");
+
+            _webDriver.FindElement(By.Id("name")).SendKeys("ВременныйПользователь");
+            _webDriver.FindElement(By.Id("login")).SendKeys("tempTestUser");
+            _webDriver.FindElement(By.Id("password")).SendKeys("password");
+            _webDriver.FindElement(By.Id("confirmPassword")).SendKeys("password");
+            _webDriver.FindElement(By.Id("email")).SendKeys("test@mail.ru");
+            new SelectElement(_webDriver.FindElement(By.Id("permission"))).SelectByValue("2");
+            new SelectElement(_webDriver.FindElement(By.Id("university"))).SelectByValue("2");
+            
+            _webDriver.FindElements(By.TagName("Button")).First(b => b.Text == "Добавить").Click();
+
+            var userRow = _webDriver.FindElements(By.TagName("tr"))
+                .FirstOrDefault(tr => tr.FindElements(By.TagName("td")).Count(td => td.Text == "tempTestUser") > 0);
+            
+            Assert.NotNull(userRow);
+
+            var delete = userRow.FindElement(By.XPath(".//td[6]/img[1]"));
+            delete.Click();
+            _webDriver.SwitchTo().Alert().Accept();
+            
+            _webDriver.Navigate().GoToUrl(Utils.SiteUrl + "/user");
+            
+            var remainingCells = _webDriver.FindElements(By.TagName("td"));
+            Assert.IsEmpty(remainingCells.Where(td => td.Text == "tempTestUser"));
         }
         
     }
