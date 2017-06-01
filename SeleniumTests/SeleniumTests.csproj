@@ -52,6 +52,7 @@
   <ItemGroup>
     <Compile Include="AdminTests.cs" />
     <Compile Include="BasicTests.cs" />
+    <Compile Include="UserTests.cs" />
     <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>
